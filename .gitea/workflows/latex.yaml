@@ -11,14 +11,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Build LaTeX document
-        uses: https://github.com/xu-cheng/texlive-action@v2
+        uses: https://github.com/xu-cheng/latex-action@v3
         with:
-          scheme: full
-          run: latexmk -shell-escape -pdf thesis.tex
+          texlive_version: latest
+          extra_packages: inkscape
+          latexmk_shell_escape: true
+          root_file: thesis.tex
       - name: Rename document
         run: mv thesis.pdf facial-animation-using-inverse-kinematics.pdf
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: pdf
+          name: PDF
           path: facial-animation-using-inverse-kinematics.pdf
