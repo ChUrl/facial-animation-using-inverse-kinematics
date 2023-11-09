@@ -8,6 +8,10 @@ jobs:
   build-latex:
     runs-on: texlive-latest
     steps:
+      - name: Setup node for checkout
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Build LaTeX document
