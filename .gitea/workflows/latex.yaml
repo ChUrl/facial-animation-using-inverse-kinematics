@@ -11,7 +11,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Build LaTeX document
-        uses: https://gitlab.local.chriphost.de:3000/christoph/texlive-action@master
+        uses: http://gitlab.local.chriphost.de:3000/christoph/texlive-action@master
         with:
           texlive_version: latest
           scheme: full
