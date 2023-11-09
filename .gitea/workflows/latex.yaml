@@ -10,12 +10,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Print
-        run: |
-          echo ${{ github.workspace }}
-          echo $GITHUB_WORKSPACE
       - name: Build LaTeX document
-        uses: https://github.com/xu-cheng/texlive-action@v2
+        uses: https://gitlab.local.chriphost.de/christoph/texlive-action
         with:
           texlive_version: latest
           scheme: full
