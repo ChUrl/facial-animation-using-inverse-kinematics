@@ -1,0 +1,19 @@
+name: Build LaTeX document
+
+on:
+  push:
+    branches: [master, main]
+
+jobs:
+  build-latex:
+    runs-on: texlive-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build LaTeX document
+        run: latexmk -shell-escape -pdf <DOCUMENT>.tex
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: <DOCUMENT>
+          path: <DOCUMENT>.pdf
