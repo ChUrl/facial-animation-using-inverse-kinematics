@@ -10,18 +10,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: List
+      - name: List directory
         run: ls -a .
       - name: Build LaTeX document
         uses: https://github.com/xu-cheng/texlive-action@v2
         with:
           texlive_version: latest
           scheme: full
-          run: latexmk --shell-escape -pdf repo/thesis.tex
+          run: latexmk --shell-escape -pdf ./thesis.tex
       - name: Rename document
-        run: mv repo/thesis.pdf repo/facial-animation-using-inverse-kinematics.pdf
+        run: mv ./thesis.pdf ./facial-animation-using-inverse-kinematics.pdf
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: PDF
-          path: repo/facial-animation-using-inverse-kinematics.pdf
+          path: ./facial-animation-using-inverse-kinematics.pdf
