@@ -10,8 +10,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          path: repo
+      - name: List
+        run: ls -a .
       - name: Build LaTeX document
         uses: https://github.com/xu-cheng/texlive-action@v2
         with:
