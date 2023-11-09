@@ -13,10 +13,9 @@ jobs:
       - name: Build LaTeX document
         uses: https://github.com/xu-cheng/latex-action@v3
         with:
-          texlive_version: latest
-          extra_packages: inkscape
-          latexmk_shell_escape: true
           root_file: thesis.tex
+          extra_packages: "inkscape"
+          latexmk_shell_escape: true
       - name: Rename document
         run: mv thesis.pdf facial-animation-using-inverse-kinematics.pdf
       - name: Upload artifact
