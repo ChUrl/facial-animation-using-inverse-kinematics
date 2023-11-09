@@ -1,0 +1,44 @@
+\documentclass{class/thesis}
+\usepackage{mathtools} % [draft]
+
+\include{properties}
+\include{glossary}
+
+\begin{document}
+\begin{thesis}
+
+  % Detect overfull boxes
+  % \overfullrule=2cm
+
+  % Capitalize all the section names
+  \renewcommand{\figureautorefname}{Figure}
+  \renewcommand{\tableautorefname}{Table}
+  \renewcommand{\partautorefname}{Part}
+  \renewcommand{\appendixautorefname}{Appendix}
+  \renewcommand{\chapterautorefname}{Chapter}
+  \renewcommand{\sectionautorefname}{Section}
+  \renewcommand{\subsectionautorefname}{Section}
+  \renewcommand{\subsubsectionautorefname}{Section}
+  \makeatletter\newcommand{\tcb@cnt@codeblockautorefname}{Listing}\makeatother
+
+  % Title
+  \title{Facial Animation and Inverse Kinematics}
+  \author{Christoph Urlacher}
+
+  \setcounter{page}{0}
+  \maketitle
+  \clearpage
+  \setcounter{page}{1}
+
+  % Chapters
+  \include{chap/chapter1} % Introduction
+  \include{chap/chapter2} % Skeletal models
+  \include{chap/chapter3} % Blend shape models
+  \include{chap/chapter4} % Performance capture
+
+  % \begin{appendices}
+  %   \include{chap/appendix1}
+  % \end{appendices}
+
+\end{thesis}
+\end{document}

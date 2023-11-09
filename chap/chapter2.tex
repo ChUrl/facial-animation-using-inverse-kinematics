@@ -1,0 +1,159 @@
+\chapter{Skeletal Models}
+\label{chap:skeletalmodels}
+
+Pure skeletal kinematic models are typically used for body animation,
+but they are also applicable to faces,
+especially when quality requirements are not as important.
+Quality issues when using skeletal models for facial animation are mostly rooted in the difficulty to obtain realistic skin movement when deforming a face by moving bones (e.g. through linear blend skinning or dual quaternion skinning).
+Another problem is the model fidelity:
+To be able to express sufficient details through animation,
+a highly-detailed skeleton is required.
+When a weakness is discovered during the animation process (for example when a certain expression can not be realized fully),
+a skeletal model might be hard to adapt/improve without invalidating existing animations.
+Despite these problems, skeletal animation may remain valid for faces,
+for example when it is deployed in combination with other methods,
+like blend shapes (discussed in \autoref{chap:blendshapemodels}).
+
+\section{Skeletal Forward Kinematics}
+\label{sec:skeletalforwardkinematics}
+
+Skeletal forward kinematics is the problem
+\[x=f(\theta),\]
+where \(x\) are effector positions and \(\theta\) joint angles,
+as described in \autoref{sec:kinematics}.
+
+Take the following two-dimensional example (see \autoref{fig:2dforwardkinematics}) with two bones (green) and two \textquote{hinge}-joints (joints with a single degree of freedom, or a single rotational axis).
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.8\textwidth}
+    \begin{tikzpicture}[scale=3]
+      \clip (-1.5, -0.2) rectangle (2, 1.5);
+
+      % Coordinates
+      \coordinate (C) at (0, 0);
+      \coordinate (X) at ({cos(30)}, {sin(30)});
+      \coordinate (Y) at ({cos(30)}, 0);
+      \coordinate (XX) at ({cos(30)+cos(60)}, {sin(30)+sin(60)});
+      \coordinate (YY) at ($(X)+(30:{cos(30)})$); % Uses tikzlibrary "calc" for maths in ($...$)
+
+      % Global axes
+      \draw[>-stealth] (C) -- +(2, 0);
+      \draw[>-stealth] (C) -- +(0, 1.5);
+
+      % Circles
+      % \draw[dashed] (0, 0) circle [radius=1];
+      % \draw[dashed] (X) circle [radius=1];
+
+      % Angle
+      \draw (0.5, 0) arc[start angle=0, end angle=30, radius=0.5] node[left=0.1cm, below=0.15cm]{\footnotesize\(\theta_1\)};
+      \draw ($(X)+(30:0.5)$) arc[start angle=30, end angle=60, radius=0.5] node[left, below=0.25cm]{\footnotesize\(\theta_2\)};
+
+      % Bones
+      \draw[green, very thick] (C) node[left, text=black]{\(x_1\)} -- node[above, text=black]{\(r_1\)} (X) node[below right, text=black]{\(x_2\)};
+      \draw[green, very thick] (X) -- node[above, left, text=black]{\(r_2\)} (XX) node[above, text=black]{\(x_3\)};
+
+      % Sine/Cosine sums
+      \draw[blue, thick] ({cos(30)}, 0) -- node[below]{\footnotesize\(r_2\cos\theta_1+\theta_2\)} +({cos(60)}, 0);
+      \draw[dashed] ({cos(30)+cos(60)}, 0) -- (XX);
+      \draw[red, thick] (0, {sin(30)}) -- node[right]{\footnotesize\(r_2\sin\theta_1+\theta_2\)} +(0, {sin(60)});
+      \draw[dashed] (0, {sin(30)}) -- (X);
+      \draw[dashed] (0, {sin(30)+sin(60)}) -- (XX);
+
+      % Sine/Cosine lines
+      \draw[blue, thick] (C) -- node[below]{\footnotesize\(r_1\cos\theta_1\)} (Y);
+      \draw[red, thick] (X) -- node[right]{\footnotesize\(r_1\sin\theta_1\)} (Y);
+      \draw[blue, thick] (X) -- node[below, sloped]{\footnotesize\(r_2\cos\theta_2\)} (YY);
+      \draw[red, thick] (XX) -- node[above, sloped]{\footnotesize\(r_2\sin\theta_2\)} (YY);
+
+      % Local axes
+      \draw[->, very thick] (C) -- +(30:0.3); % Polar coordinates
+      \draw[->, very thick] (C) -- +(120:0.3);
+      \draw[->, very thick] (X) -- +(60:0.3);
+      \draw[->, very thick] (X) -- +(150:0.3);
+    \end{tikzpicture}
+  \end{subfigure}
+  \caption{Simple 2D kinematic model.}
+  \label{fig:2dforwardkinematics}
+\end{figure}
+
+To calculate the absolute position of \(x_3\) in the global coordinate system (the large one),
+we can first look at the transformation at each joint individually and then trace the \textquote{bone-path} from the system's root to the end effector.
+Describing \(x_3\) relative to the second joint's local coordinate system (the small one with its origin in \(x_2\)) is simple,
+as its just a translation without rotation (\(x_{2\rightarrow 3}\) denotes the position of effector \(x_3\) relative to the coordinate system with origin in \(x_2\)):
+\[x_{2\rightarrow 3}=\begin{pmatrix*}
+  r_2\\
+  0
+\end{pmatrix*}.\]
+To describe \(x_2\) relative to the first joint's local coordinate system (the small one with its origin in \(x_1\)),
+we additionally have to consider to coordinate rotation caused by the second joint and the translation caused by the first bone (the one with length \(r_1\)).
+The rotation is described using a two-dimensional rotation matrix \(R_2\) (\(2\times 2\) orthogonal matrix):
+\[R_2=\begin{pmatrix*}
+  &\cos\theta_2 &-\sin\theta_2\\
+  &\sin\theta_2 &\cos\theta_2
+\end{pmatrix*}.\]
+The local translation caused by the first bone is
+\[x_{1\rightarrow 2}=\begin{pmatrix*}
+  r_1\\
+  0
+\end{pmatrix*},\]
+it follows the affine transformation
+\[x_{1\rightarrow 3}=x_{1\rightarrow 2}+R_2 x_{2\rightarrow 3}.\]
+To obtain the global coordinates (denoted by just \(x_3\)), the rotation \(R_1\) caused by the first joint needs to be included (assuming the system has origin \((0, 0)\)):
+\[x_3=R_1 x_{1\rightarrow 3}=R_1(x_{1\rightarrow 2}+R_2 x_{2\rightarrow 3}),\]
+where
+\[R_1=\begin{pmatrix*}
+  &\cos\theta_1 &-\sin\theta_1\\
+  &\sin\theta_1 &\cos\theta_1
+\end{pmatrix*}.\]
+Using addition theorems for sine and cosine, this leaves us with
+\[x_3=\begin{pmatrix*}
+  r_1\cos\theta_1+r_2(\cos\theta_1\cos\theta_2-\sin\theta_1\sin\theta_2)\\
+  r_1\sin\theta_1+r_2(\sin\theta_1\cos\theta_2+\cos\theta_1\sin\theta_2)
+\end{pmatrix*}=\begin{pmatrix*}
+  r_1\cos\theta_1+r_2\cos(\theta_1+\theta_2)\\
+  r_1\sin\theta_1+r_2\sin(\theta_1+\theta_2)
+\end{pmatrix*},\]
+which is also the intuitive solution when looking at \autoref{fig:2dforwardkinematics}.
+
+\section{Skeletal Inverse Kinematics}
+\label{sec:skeletalinversekinematics}
+
+Skeletal inverse kinematics is the problem
+\[\theta=f^{-1}(x).\]
+As mentioned earlier, analytical solvers are rarely applied to this problem,
+approximative solvers are usually used instead.
+A starting approach is using the first order Taylor approximation of the effector's target positions \(t\):
+\[t=f(\theta+\delta\theta)\approx f(\theta)+J(\theta)\delta\theta,\]
+where \(J(\theta)\) is the Jacobian\footnote{
+  \textquote{Jacobian entry \(J_{i, j}\) contains derivative of effector position \(x_i\) with respect to rotation angle \(\theta_j\) of joint \(j\)}.
+}.
+Solving for the angle-update \(\delta\theta\) yields the linear system
+\[t-f(\theta)\approx J(\theta)\delta\theta,\]
+which is (probably) difficult to solve because the system is usually underconstrained, \(J(\theta)\) might not be invertible or maybe there is no solution at all (for example if the target positions are out of reach of the effectors).
+
+The approximative target to minimize to obtain a \(\delta\theta\) that best satisfies \(t-f(\theta)\approx J(\theta)\delta\theta\) when the inverse kinematics problem doesn't have a solution is the \textbf{least squares} solution
+\[\delta\theta=\arg\min\limits_{\delta\theta}||J(\theta)\delta\theta-(t-f(\theta))||^2.\]
+The target to minimize to obtain a \(\delta\theta\) that satisfies \(t-f(\theta)=J(\theta)\delta\theta\) when the inverse kinematics problem has a single or multiple solutions is the \textbf{least norm} solution
+\[\delta\theta=\arg\min\limits_{\delta\theta}||\delta\theta||,\]
+such that \(t-f(\theta)=J(\theta)\delta\theta\).
+
+\subsection{Moore-Penrose Inverse}
+\label{subsec:moorepenroseinverse}
+
+A generally possible \textquote{best-effort} solution to linear systems with no/infinitely many solutions is given by the \textbf{Moore-Penrose Inverse}:
+When solving a linear system \(Ax=b\) using \(x=A^{-1}b\) is not possible (e.g. because \(A\) is not invertible),
+calculate \(x\approx A^+b\) instead, where \(A^+\) is the Moore-Penrose inverse (or \textquote{pseudo-inverse}).
+If the system is overconstrained, this approach minimizes \(||Ax-b||^2\) (least squares),
+if the system is underconstrained, it minimizes \(||x||\) (least norm) such that \(Ax=b\),
+and if \(A\) is actually invertible, \(A^+=A^{-1}\).
+
+The pseudo-inverse can be calculated using a singular-value-decomposition:
+Inverting a regular invertible matrix \(A=U\Sigma V^T\), \(A\in\mathbb{R}^{n\times n}\) yields
+\[A^{-1}=(U\Sigma V^T)^{-1}=(V^T)^{-1}\Sigma^{-1}U^{-1}=V\Sigma^{-1}U^T\]
+with \(\Sigma^{-1}=\text{diag}(\frac{1}{\lambda_1},\dots,\frac{1}{\lambda_n})\),
+\textquote{pseudo-inverting} a non-invertible matrix \(A=U\Sigma V^T\), \(A\in\mathbb{R}^{n\times n}\) with \(\text{rank}(A)=m<n\) yields
+\[A^+=(U\Sigma V^T)^+=(V^T)^+\Sigma^+U^+=(V^T)^{-1}\Sigma^+U^{-1}=V\Sigma^+U^T\]
+with \(\Sigma^+=\text{diag}(\frac{1}{\lambda_1},\dots,\frac{1}{\lambda_m},0,\dots,0)\).
+
+Using the pseudo-inverse, the inverse kinematics problem can now be solved by iteratively updating the joint angles \(\theta\) in direction of \(\delta\theta=J(\theta)^+(t-f(\theta))\).

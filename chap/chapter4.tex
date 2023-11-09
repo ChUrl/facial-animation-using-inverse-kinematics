@@ -1,0 +1,88 @@
+\chapter{Performance Driven Facial Animation}
+\label{chap:performancedrivenfacialanimation}
+
+Facial animation is rarely a fully manual process,
+either for efficiency reasons as manual animation is a work-intensive process,
+or to capture more true-to-life facial expressions,
+or in case of real-time applications,
+where manual animation is not applicable at all.
+Classical face tracking used in film or video games is typically marker-based optical tracking,
+but with the emergence of head-mounted technology like virtual- or augmented-reality headsets,
+this method is no longer fitting,
+because a large part of the face is obstructed when wearing head-mounted displays.
+
+\section{Stereo/Optical Facial Tracking}
+\label{sec:facialtracking}
+
+Marker-based face tracking (or motion capture in general) works similar to stereo 3D-scanning:
+At least two cameras point at the face to be tracked,
+which is augmented with \textquote{markers} (easily identifiable points),
+so facial features can be reliably tracked by all cameras.
+Because cameras can \textquote{see} the same marker from multiple perspectives (the camera positions have to be known),
+the distance of a marker from both cameras can be calculated by solving the intersection of the straight lines defined by each camera position and the marker position.
+In the schematic in \autoref{fig:2dstereotracking}, the cameras are marked blue, while the marker on the face is marked red.
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[b]{0.75\textwidth}
+    \begin{tikzpicture}[scale=3]
+      \clip (-2, -0.2) rectangle (3, 1.3);
+
+      % Coordinates
+      \coordinate (CA) at (-1, 0);
+      \coordinate (CB) at (1, 0);
+      \coordinate (M) at (0, 1);
+
+	  % Axis
+	  \draw[->] (-1.5, 0) -- (1.5, 0); % x
+	  \draw[->] (0, 0) -- (0, 1.3); % y
+
+      % Cameras
+      \node[isosceles triangle, isosceles triangle apex angle=30, draw, fill=blue, minimum size=0.5, rotate=225] (TA) at (CA){};
+      \node[isosceles triangle, isosceles triangle apex angle=30, draw, fill=blue, minimum size=0.5, rotate=315] (TB) at (CB){};
+
+	  % Camera beams
+	  \draw[->, blue] (CA) -- (M) -- +(0.2, 0.2);
+	  \draw[->, blue] (CB) -- (M) -- +(-0.2, 0.2);
+
+	  % Marker
+	  \draw[fill=red] (M) circle (0.025);
+
+      % Face
+      \draw[green] (M) +(0, 0.05) circle (0.2);
+      \draw[green] (M) +(0.075, 0.1) circle (0.04);
+      \draw[green] (M) +(-0.075, 0.1) circle (0.04);
+      \draw[green] (M) +(-0.075, -0.075) arc[start angle=225, end angle=315, radius=0.1]{};
+    \end{tikzpicture}
+  \end{subfigure}
+  \caption{2D Stereo Tracking.}
+  \label{fig:2dstereotracking}
+\end{figure}
+
+When basic information about the camera is known (e.g. focal length and sensor size),
+the beam directions can be inferred from the marker's pixel position in the image plane.
+This allows defining straight line equations for both beams,
+equating those and solving the resulting linear system leads to the distance from the camera.
+Because the camera positions are known, the marker's position is also known.
+
+By adding more cameras to the tracking setup and thus increasing the size of the linear system to be solved,
+errors can be reduced and the tracking area increased (surround cameras also enable tracking rotations).
+Proprietary tracking systems like OptiTrack~\autocite{optitrack} use techniques like infrared cameras with infrared emitters and reflective markers
+to lessen the influence of regular daylight and simplify the marker detection.
+
+Finally, when the marker positions have been calculated,
+the inverse kinematics problem for either blend shapes or a skeleton can be solved,
+since each marker corresponds to a vertex of the facial model.
+
+\section{Tracking Solutions in Consumer VR Products}
+\label{sec:consumertrackingsolutions}
+
+Because head-mounted-displays hinder the application of facial markers,
+facial tracking data for a portion of a face is typically extracted from a single camera feed instead of multiple.
+Cameras might be mounted inside the HMD, facing the eyes and nose, and below the HMD, facing the mouth and chin.
+Since a delta blend shape model linearly combines locally isolated deformations,
+processing different facial regions individually does not impose a problem.
+
+Unlike the stereo tracking, this approach does not use the inverse kinematics method described in \autoref{sec:blendshapeinversekinematics}.
+Instead, each camera feed is fed through a specialized computer vision model,
+which directly calculates the blend shape weights for a particular facial region and blend shape model.
