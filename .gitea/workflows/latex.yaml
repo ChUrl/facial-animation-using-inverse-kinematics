@@ -15,7 +15,6 @@ jobs:
         with:
           scheme: full
           run: latexmk -shell-escape -pdf thesis.tex
-        uses: actions/checkout@v4
       - name: Rename document
         run: mv thesis.pdf facial-animation-using-inverse-kinematics.pdf
       - name: Upload artifact
