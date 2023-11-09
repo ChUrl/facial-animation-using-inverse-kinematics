@@ -6,16 +6,16 @@ on:
 
 jobs:
   build-latex:
-    runs-on: texlive-latest
+    runs-on: ubuntu-22.04
     steps:
-      - name: Setup node for checkout
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Build LaTeX document
-        run: latexmk -shell-escape -pdf thesis.tex
+        uses: https://github.com/xu-cheng/texlive-action@v2
+        with:
+          scheme: full
+          run: latexmk -shell-escape -pdf thesis.tex
+        uses: actions/checkout@v4
       - name: Rename document
         run: mv thesis.pdf facial-animation-using-inverse-kinematics.pdf
       - name: Upload artifact
