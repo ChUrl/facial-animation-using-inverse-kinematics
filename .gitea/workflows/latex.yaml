@@ -2,7 +2,7 @@ name: Build LaTeX document
 
 on:
   push:
-    branches: [master, main]
+    branches: [master]
 
 jobs:
   build-latex:
@@ -11,9 +11,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Build LaTeX document
-        run: latexmk -shell-escape -pdf <DOCUMENT>.tex
+        run: latexmk -shell-escape -pdf thesis.tex
+      - name: Rename document
+        run: mv thesis.pdf facial-animation-using-inverse-kinematics.pdf
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: <DOCUMENT>
-          path: <DOCUMENT>.pdf
+          name: pdf
+          path: facial-animation-using-inverse-kinematics.pdf
