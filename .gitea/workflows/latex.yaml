@@ -10,12 +10,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      # - name: Build LaTeX document
+      #   uses: http://gitlab.local.chriphost.de:3000/christoph/texlive-action@master
+      #   with:
+      #     texlive_version: latest
+      #     scheme: full
+      #     run: latexmk --shell-escape -pdf thesis.tex
       - name: Build LaTeX document
-        uses: http://gitlab.local.chriphost.de:3000/christoph/texlive-action@master
-        with:
-          texlive_version: latest
-          scheme: full
-          run: latexmk --shell-escape -pdf thesis.tex
+        run: docker run --rm -v "$GITHUB_WORKSPACE:/document" ghcr.io/xu-cheng/texlive-full:latest /bin/bash -c latexmk --shell-escape -pdf /document/thesis.tex
       - name: Rename document
         run: mv thesis.pdf facial-animation-using-inverse-kinematics.pdf
       - name: Upload artifact
