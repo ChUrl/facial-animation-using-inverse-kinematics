@@ -18,7 +18,7 @@ jobs:
       #     run: latexmk --shell-escape -pdf thesis.tex
       - name: Build LaTeX document
         # run: docker run --rm -v "$GITHUB_WORKSPACE:/document" ghcr.io/xu-cheng/texlive-full:latest /bin/bash -c -- latexmk -shell-escape -pdf /document/thesis.tex
-        run: docker run --rm --volumes-from ${{ env.JOB_CONTAINER_NAME }} ghcr.io/xu-cheng/texlive-full:latest cd ${{ github.workspace }} && latexmk -shell-escape -pdf thesis.tex
+        run: docker run --rm --volumes-from ${{ env.JOB_CONTAINER_NAME }} -w ${{ github.workspace }} ghcr.io/xu-cheng/texlive-full:latest latexmk -shell-escape -pdf thesis.tex
         # run: docker run --rm --volumes-from ${{ env.JOB_CONTAINER_NAME }} ghcr.io/xu-cheng/texlive-full:latest ls ${{ github.workspace }}
       - name: Rename document
         run: mv thesis.pdf facial-animation-using-inverse-kinematics.pdf
