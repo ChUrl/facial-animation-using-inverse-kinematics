@@ -19,7 +19,9 @@ jobs:
       - name: Build LaTeX document
         # run: docker run --rm -v "$GITHUB_WORKSPACE:/document" ghcr.io/xu-cheng/texlive-full:latest /bin/bash -c -- latexmk -shell-escape -pdf /document/thesis.tex
         # run: docker run --rm -v "$GITHUB_WORKSPACE:/document" ghcr.io/xu-cheng/texlive-full:latest latexmk -shell-escape -pdf /document/thesis.tex
-        run: docker run --rm -v "$GITHUB_WORKSPACE:/document" ghcr.io/xu-cheng/texlive-full:latest ls /document
+        run: echo $GITHUB_WORKSPACE
+      - name: List env
+        run: env
       - name: Rename document
         run: mv thesis.pdf facial-animation-using-inverse-kinematics.pdf
       - name: Upload artifact
