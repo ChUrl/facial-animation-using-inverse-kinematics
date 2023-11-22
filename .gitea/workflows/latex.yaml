@@ -2,7 +2,7 @@ name: Build LaTeX document
 
 on:
   push:
-    branches: [master]
+    branches: [master, main]
 
 jobs:
   build-latex:
@@ -11,11 +11,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Build LaTeX document
-        run: docker run --rm --volumes-from ${{ env.JOB_CONTAINER_NAME }} --workdir ${{ github.workspace }} ghcr.io/xu-cheng/texlive-full:latest latexmk -shell-escape -pdf thesis.tex
-      - name: Rename document
-        run: mv thesis.pdf facial-animation-using-inverse-kinematics.pdf
+        run: docker run --rm --volumes-from ${{ env.JOB_CONTAINER_NAME }} --workdir ${{ github.workspace }} gitea.vps.chriphost.de/christoph/docker-texlive:latest latexmk -shell-escape -pdf thesis.tex
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: facial-animation-using-inverse-kinematics.pdf
-          path: facial-animation-using-inverse-kinematics.pdf
+          path: thesis.pdf
