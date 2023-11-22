@@ -12,8 +12,10 @@ jobs:
         uses: actions/checkout@v4
       - name: Build LaTeX document
         run: docker run --rm --volumes-from ${{ env.JOB_CONTAINER_NAME }} --workdir ${{ github.workspace }} gitea.vps.chriphost.de/christoph/docker-texlive:latest latexmk -shell-escape -pdf thesis.tex
+      - name: Rename artifact
+        run: mv thesis.pdf facial-animation-using-inverse-kinematics.pdf
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: facial-animation-using-inverse-kinematics.pdf
-          path: thesis.pdf
+          path: facial-animation-using-inverse-kinematics.pdf
